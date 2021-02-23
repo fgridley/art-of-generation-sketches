@@ -1,0 +1,134 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
+    <script src="test-1.js"></script>
+  </head>
+  <body>
+    <main>
+    </main>
+  </body>
+</html>
+
+<!--
+  const vertexShader = `
+	#ifdef GL_ES
+    precision mediump float;
+    #endif
+
+    attribute vec3 aPosition;
+    
+    void main() {
+        gl_Position = vec4(aPosition, 1.0);
+    }
+`
+
+let fragmentShader = `
+	#ifdef GL_ES
+    precision mediump float;
+    #endif
+    
+    uniform vec2 u_resolution;
+    uniform vec2 u_mouse;
+    uniform sampler2D tex;
+
+    void main() {
+        vec2 st = gl_FragCoord.xy / u_resolution;
+        vec2 delta = 1. / u_resolution;
+        float center = texture2D(tex, st).r;
+		float up = texture2D(tex, st - vec2(0., -delta.y)).r;
+		float left = texture2D(tex, st - vec2(delta.x, 0.)).r;
+		float down = texture2D(tex, st - vec2(0., delta.y)).r;
+		float right = texture2D(tex, st - vec2(-delta.x, 0.)).r;
+        float c = sin(center + (up + left + down + right)/1.);
+        gl_FragColor = vec4(vec3(c), 1.0);
+    }
+`
+
+let diffusionShaderFrag = `
+// These are necessary definitions that let you graphics card know how to render the shader
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform sampler2D canvas;
+
+uniform float diffusionA;
+uniform float diffusionB;
+uniform float kill;
+uniform float feed;
+uniform float deltaT;
+
+vec2 outFrag;
+
+void main() {
+    vec2 posn = gl_FragCoord.xy / resolution.xy;
+    vec2 val = texture2D(canvas, posn);  
+    vec2 lap = -val;
+    
+    lap += textureOffset(canvas, vec2(0.5, 0.5), ivec2(-1, 0)).rg * 0.20;
+    lap += textureOffset(canvas, posn, ivec2(+1, 0)).rg * 0.20;
+    lap += textureOffset(canvas, posn, ivec2( 0,-1)).rg * 0.20;
+    lap += textureOffset(canvas, posn, ivec2( 0,+1)).rg * 0.20;
+    lap += textureOffset(canvas, posn, ivec2(-1,-1)).rg * 0.05;
+    lap += textureOffset(canvas, posn, ivec2(+1,-1)).rg * 0.05;
+    lap += textureOffset(canvas, posn, ivec2(-1,+1)).rg * 0.05;
+    lap += textureOffset(canvas, posn, ivec2(+1,+1)).rg * 0.05;
+    
+    float nA = dA * lap.r - val.r * val.g * val.g + feed * (1.0 - val.r);
+    float nB = dB * lap.g + val.r * val.g * val.g - (feed + kill) * val.g;
+    
+    outfrag = val + vec2(nA, nB) * dt;
+
+    gl_fragColor = vec4(outFrag, 0.0, 1.0)
+}
+`
+
+let canvas;
+let diffusionShader;
+let pg;
+
+const diffusionA = 0.8;
+const diffusionB = 0.35;
+const feed = 0.055;
+const kill = 0.062;
+const deltaT = 1.0;
+
+
+function setup() {
+  canvas = createCanvas(windowWidth - 100, windowHeight - 100)
+  pixelDensity(1)
+  noStroke()
+  background(0)
+  fill('red')
+  ellipse(width / 2, height / 2, 1)
+
+  pg = createGraphics(width, height, WEBGL)
+  pg.pixelDensity(1)
+  diffusionShader = pg.createShader(vertexShader, diffusionShaderFrag)
+  
+  // diffusionShader = pg.createShader(vertexShader, fragmentShader)
+  pg.shader(diffusionShader)
+
+  diffusionShader.setUniform('tex', canvas)
+  diffusionShader.setUniform('u_resolution', [width, height])
+  
+  // diffusionShader.setUniform('resolution', [width, height])
+  //   // diffusionShader.setUniform('canvas', canvas);
+  //   diffusionShader.setUniform('diffusionA', [diffusionA]);
+  //   diffusionShader.setUniform('diffusionB', [diffusionB]);
+  //   diffusionShader.setUniform('kill', [kill]);
+  //   diffusionShader.setUniform('feed', [feed]);
+  //   diffusionShader.setUniform('deltaT', [deltaT]);
+
+  frameRate(20)
+}
+
+function draw() {
+  pg.shader(diffusionShader)
+  pg.quad(-1, -1, -1, 1, 1, 1, 1, -1)
+  diffusionShader.setUniform('tex', pg)
+
+  image(pg, 0, 0)
+}
+-->
