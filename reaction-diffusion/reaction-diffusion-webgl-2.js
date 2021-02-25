@@ -14,7 +14,7 @@ function preload() {
 }
 
 function setup() {
-    colorMode(RGB, 1)
+  colorMode(RGB, 1)
   canvas = createCanvas(windowWidth - 100, windowHeight - 100)
   pixelDensity(1)
   noStroke()
