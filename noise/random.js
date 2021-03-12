@@ -13,7 +13,7 @@ function draw() {
         yOffset = 0;
         for (let y = 0; y < height; y++) {
             const pixel = (x + y * width) * 4;
-            const color = noise(xOffset, yOffset) * 256;
+            const color = random() * 256;
             pixels[pixel + 0] = color;
             pixels[pixel + 1] = color;
             pixels[pixel + 2] = color;

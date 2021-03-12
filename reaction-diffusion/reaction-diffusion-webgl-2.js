@@ -10,7 +10,7 @@ const kill = 0.06;
 const deltaT = 1.0;
 
 function preload() {
-    diffusionShader = loadShader("diffusion-shader.vert", "diffusion-shader.frag");
+    diffusionShader = loadShader("diffusion-shader.vert", "diffusion-shader-3.frag");
 }
 
 function setup() {
@@ -22,10 +22,10 @@ function setup() {
   fill(1,0,0)
   stroke(0,1,0)
   strokeWeight(5)
-  ellipse(width / 2 - 50, height / 2, 50)
-  ellipse(width / 2 + 50, height / 2, 50)
-  ellipse(width / 2, height / 2 - 50, 50)
-  ellipse(width / 2, height / 2 + 50, 50)
+  ellipse(width / 2 - 20, height / 2, 50)
+  ellipse(width / 2 + 20, height / 2, 50)
+  ellipse(width / 2, height / 2 - 20, 50)
+  ellipse(width / 2, height / 2 + 20, 50)
   initializeShader()
   
 
@@ -39,19 +39,28 @@ function initializeShader() {
 
     pg.shader(diffusionShader)
 
+    // diffusionShader.setUniform('resolution', [width, height])
+    // diffusionShader.setUniform('canvas', canvas);
+    // diffusionShader.setUniform('diffusionA', [diffusionA]);
+    // diffusionShader.setUniform('diffusionB', [diffusionB]);
+    // diffusionShader.setUniform('kill', [kill]);
+    // diffusionShader.setUniform('feed', [feed]);
+    // diffusionShader.setUniform('deltaT', [deltaT]);
+
     diffusionShader.setUniform('resolution', [width, height])
-    diffusionShader.setUniform('canvas', canvas);
-    diffusionShader.setUniform('diffusionA', [diffusionA]);
-    diffusionShader.setUniform('diffusionB', [diffusionB]);
-    diffusionShader.setUniform('kill', [kill]);
+    diffusionShader.setUniform('tSource', canvas);
+    // diffusionShader.setUniform('diffusionA', [diffusionA]);
+    // diffusionShader.setUniform('diffusionB', [diffusionB]);
+    diffusionShader.setUniform('delta', [deltaT]);
     diffusionShader.setUniform('feed', [feed]);
-    diffusionShader.setUniform('deltaT', [deltaT]);
+    diffusionShader.setUniform('kill', [kill]);
 }
 
 function draw() {
   pg.shader(diffusionShader)
   pg.rect(0,0,width, height);
-  diffusionShader.setUniform('canvas', pg)
+  // diffusionShader.setUniform('canvas', pg)
+  diffusionShader.setUniform('tSource', canvas);
 
   image(pg, 0, 0)
 }
